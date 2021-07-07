@@ -67,3 +67,9 @@ M.ReloadModules = ReloadModules
 
 return M
 ```
+
+Once done, modify your server.json and add your extension to extensions.  
+`"extensions": ["template", "if_you_have_any_other_extensions"],`
+
+## Current Extensions ##
+> [vulcan_moderation](https://github.com/vulcan-dev/kissmp-extension-moderation)
