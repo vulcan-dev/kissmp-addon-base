@@ -5,8 +5,9 @@
 4. Make sure absolutely no filenames conflict with eachother
 
 ## Template ##
-> Note: No callbacks are required, you can pick and choose what you need.
-extensions/template.lua
+> Note: No callbacks are required, you can pick and choose what you need.  
+
+**extensions/template.lua**
 ```lua
 require('addons.vulcan_script.globals')
 
