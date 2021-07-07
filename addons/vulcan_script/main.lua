@@ -11,7 +11,6 @@ local modules = {
 }
 
 local extensions = {}
-local nextUpdate = 0
 local prefix = '/'
 
 -- [[ ==================== Hooking Start ==================== ]] --
@@ -92,33 +91,37 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     end
 
     --[[ Execute Command ]]
-    modules.utilities.Log({level=G_LevelInfo}, string.format('%s said: %s', G_Clients[client_id].user:getName(), message))
-    if string.sub(message, 1, 1) == prefix then
-        local args = modules.utilities.ParseCommand(message, ' ')
-        args[1] = args[1]:sub(2)
+    if G_Commands then
+        modules.utilities.Log({level=G_LevelInfo}, string.format('%s said: %s', G_Clients[client_id].user:getName(), message))
+        if string.sub(message, 1, 1) == prefix then
+            local args = modules.utilities.ParseCommand(message, ' ')
+            args[1] = args[1]:sub(2)
 
-        local command = G_Commands[args[1]]
+            local command = G_Commands[args[1]]
 
-        if command then
-            if executor.GetRank() >= command.rank then
-                table.remove(args, 1)
-                G_Try(function ()
-                    command.exec(executor, args)
-                end, function(err)
-                    modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please report it on the github ]\nMessage: %s', message, err), modules.server.ColourError)
-                    modules.utilities.Log({level=G_LevelError}, string.format('Command failed! User: %s\n  Message: %s', executor.user:getName(), err))
-                    return ""
-                end)
+            if command then
+                if executor.GetRank() >= command.rank then
+                    table.remove(args, 1)
+                    G_Try(function ()
+                        command.exec(executor, args)
+                    end, function(err)
+                        modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please report it on the github ]\nMessage: %s', message, err), modules.server.ColourError)
+                        modules.utilities.Log({level=G_LevelError}, string.format('Command failed! User: %s\n  Message: %s', executor.user:getName(), err))
+                        return ""
+                    end)
+                end
+            else
+                modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
             end
         else
-            modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
+            if extensions['vulcan_moderation'] then
+                modules.moderation.SendUserMessage(executor, message)
+            else
+                modules.server.SendChatMessage(executor.user:getName() .. ': ' .. message)
+            end
         end
     else
-        if extensions['vulcan_moderation'] then
-            modules.moderation.SendUserMessage(executor, message)
-        else
-            modules.server.SendChatMessage(executor.user:getName() .. ': ' .. message)
-        end
+        modules.server.SendChatMessage(executor.user:getName() .. ': ' .. message)
     end
 
     --[[ Load Extension Hook VK_OnMessageReceive ]]--
